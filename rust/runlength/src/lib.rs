@@ -1,6 +1,6 @@
-use std::fmt;
+use std::{fmt};
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 struct TCount<T>
 {
     pub t: T,
@@ -46,6 +46,16 @@ where T: PartialEq + Copy,
         Ok(RunLengthEncoded{elements: result})
     }
     
+    pub fn decode(encoded: &RunLengthEncoded<T>) -> Vec<T> {
+        let mut result: Vec<T> = vec![];
+        for tc in &(*encoded).elements {
+            for _ in 0..tc.num {
+                result.push(tc.t);
+            }
+        }
+
+        result
+    }
 }
 
 impl<T> fmt::Display for RunLengthEncoded<T>
