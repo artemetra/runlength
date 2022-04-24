@@ -1,42 +1,37 @@
-from typing import List, TypeVar, Union
+from typing import List, TypeVar, Union, Any
 
-class ByteCount:
-    def __init__(self, byte: bytes, number: int) -> None:
-        if not isinstance(number, int) and len(byte) != 1:
-            raise ValueError("The ByteCount constructor should only get one byte as a parameter")
+T = TypeVar('T')
+class ElemCount:
+    def __init__(self, element: T, number: int) -> None:
         if not isinstance(number, int):
-            raise ValueError("Number times to repeat a byte is not an int")
+            raise ValueError("Number times to repeat an element is not an int")
         
-        self.byte = byte
+        self.element = element
         self.number = number
     
     def __repr__(self):
-        return f'{self.byte}[{self.number}]' if self.number != 1 else f'{self.byte}'
+        return f'{self.element}[{self.number}]' if self.number != 1 else f'{self.element}'
 
-RLEncoded = List[ByteCount]
-
-def encode(bytes: Union[bytes, bytearray, str]) -> RLEncoded:
-    result_list: RLEncoded = [ByteCount(b'\0',0)]
+RLEncoded = List[ElemCount]
+def encode(elem_list: List[T]) -> RLEncoded:
+    result_list: RLEncoded = [ElemCount(elem_list[0], 1)]
     idx = 0
-    for b in bytes:
+    for elem in elem_list[1:]:
         current = result_list[idx]
-        if current.byte == b:
+        if current.element == elem:
             current.number += 1
         else:
-            result_list.append(ByteCount(b, 1))
+            result_list.append(ElemCount(elem, 1))
             idx += 1
-    return result_list[1:]
+    return result_list
 
-def decode(to_decode: RLEncoded) -> Union[bytes, str]:
-    try:
-        return ''.join(t.byte*t.number for t in to_decode)
-    except TypeError:
-        return b''.join(t.byte*t.number for t in to_decode)
+def decode(to_decode: RLEncoded) -> List[T]:
+    return [ec.element for ec in to_decode for _ in range(ec.number)]
 
 def main(to_encode):
     encoded = encode(to_encode)
-    print("encoded: " + ''.join(str(i) for i in encoded))
-    print("decoded: " + decode(encoded))
+    print(f"encoded: {''.join(str(i) for i in encoded)}")
+    print(f"decoded: {decode(encoded)}")
 
 if __name__ == '__main__':
     t = input("run length encode: ")
