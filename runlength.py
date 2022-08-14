@@ -1,32 +1,36 @@
-from typing import List, TypeVar, Union, Any
+from typing import List, Any
 
-T = TypeVar('T')
 class ElemCount:
-    def __init__(self, element: T, number: int) -> None:
-        if not isinstance(number, int):
+
+    def __init__(self: 'ElemCount', element: Any, repeats: int) -> None:
+        if not isinstance(repeats, int):
             raise ValueError("Number times to repeat an element is not an int")
         
         self.element = element
-        self.number = number
+        self.repeats = repeats
+
+    def increase_repeats(self):
+        self.repeats += 1
     
-    def __repr__(self):
-        return f'{self.element}[{self.number}]' if self.number != 1 else f'{self.element}'
+    def __str__(self):
+        return f'{self.element}{self.repeats}'
 
 RLEncoded = List[ElemCount]
-def encode(elem_list: List[T]) -> RLEncoded:
+
+def encode(elem_list: str) -> RLEncoded:
     result_list: RLEncoded = [ElemCount(elem_list[0], 1)]
-    idx = 0
+    idx: int = 0
     for elem in elem_list[1:]:
-        current = result_list[idx]
+        current: ElemCount = result_list[idx]
         if current.element == elem:
-            current.number += 1
+            current.increase_repeats()
         else:
             result_list.append(ElemCount(elem, 1))
             idx += 1
     return result_list
 
-def decode(to_decode: RLEncoded) -> List[T]:
-    return [ec.element for ec in to_decode for _ in range(ec.number)]
+def decode(to_decode: RLEncoded) -> str:
+    return ''.join([ec.element for ec in to_decode for _ in range(ec.repeats)])
 
 def main(to_encode):
     encoded = encode(to_encode)
